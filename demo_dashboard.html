@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-gray-950 text-gray-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AetherGro | AI-Powered Smart Grocery & Inventory Engine</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              bg: '#030712',
+              panel: 'rgba(17, 24, 39, 0.75)',
+              border: 'rgba(255, 255, 255, 0.08)',
+              green: '#10b981',
+              amber: '#f59e0b',
+              rose: '#ef4444',
+              indigo: '#6366f1',
+              violet: '#8b5cf6',
+            }
+          },
+          fontFamily: {
+            sans: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+      background-color: #030712;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+        radial-gradient(at 50% 0%, rgba(139, 92, 246, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(239, 68, 68, 0.03) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+    .glass-panel {
+      background: rgba(10, 15, 30, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .grid-gridlines {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    .console-cursor::after {
+      content: '▋';
+      animation: blink 1s step-start infinite;
+      color: #6366f1;
+      margin-left: 2px;
+    }
+    /* Expiry Glowing halos */
+    .glow-green { box-shadow: 0 0 14px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.35); }
+    .glow-amber { box-shadow: 0 0 14px rgba(245, 158, 11, 0.25); border-color: rgba(245, 158, 11, 0.35); }
+    .glow-rose { box-shadow: 0 0 14px rgba(239, 68, 68, 0.3); border-color: rgba(239, 68, 68, 0.35); }
+  </style>
+</head>
+<body class="antialiased min-h-screen text-gray-100 overflow-x-hidden">
+
+  <!-- Main Container -->
+  <div class="min-h-screen flex flex-col justify-between">
+    
+    <!-- Top Nav Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-gray-800/80 px-6 py-4 shadow-xl">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        
+        <!-- Brand logo -->
+        <div class="flex items-center gap-2.5">
+          <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyber-indigo to-cyber-violet flex items-center justify-center shadow-[0_0_12px_rgba(99,102,241,0.45)] text-white">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.886L4.2 9.2l4.8 4.364L7.088 19.5 12 16l4.912 3.5-1.912-5.936 4.8-4.364-5.888-.314L12 3z"/></svg>
+          </div>
+          <div class="text-left select-none">
+            <h1 class="text-lg font-black tracking-tight text-white leading-none">AetherGro</h1>
+            <span class="text-[8px] text-cyber-violet font-extrabold tracking-widest uppercase block mt-0.5">Supply Engine v1.0</span>
+          </div>
+        </div>
+
+        <!-- Tab Selection Navigation -->
+        <nav class="hidden md:flex items-center gap-1 bg-gray-950/65 p-1 rounded-xl border border-gray-900">
+          <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all bg-cyber-indigo text-white shadow-[0_0_10px_rgba(99,102,241,0.25)] border-t border-white/5">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+            Matrix Control
+          </button>
+          <button onclick="switchTab('pantry')" id="btn-pantry" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all text-gray-400 hover:text-white hover:bg-gray-900/50">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-10 9h3v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8h3L12 3z"/></svg>
+            Shelf Digital Twin
+          </button>
+          <button onclick="switchTab('list')" id="btn-list" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all text-gray-400 hover:text-white hover:bg-gray-900/50">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            Grocery Plan
+          </button>
+          <button onclick="switchTab('recipes')" id="btn-recipes" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all text-gray-400 hover:text-white hover:bg-gray-900/50">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H18V20H6z"/><path d="M12 2v12"/><path d="M5 14h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2z"/></svg>
+            Culinary Planner
+          </button>
+        </nav>
+
+        <!-- Profile Control -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-800 bg-gray-900/40 text-[9px] font-bold uppercase tracking-wider text-gray-400">
+            <svg class="h-3.5 w-3.5 text-cyber-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Local Sandbox Secured
+          </div>
+          <div class="flex items-center gap-2 border-l border-gray-800 pl-3">
+            <div class="text-right">
+              <div class="text-xs font-extrabold text-white leading-none">Elite Developer</div>
+              <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Operator</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Main Content Tab Viewers -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8 pb-24 md:pb-8">
+
+      <!-- ================= 1. DASHBOARD VIEW ================= -->
+      <div id="tab-dashboard" class="tab-content space-y-8">
+        
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+              Pantry Control Matrix
+              <span class="bg-cyber-indigo/10 border border-cyber-indigo/30 px-2 py-0.5 text-xs font-black rounded text-cyber-indigo flex items-center gap-1">
+                <svg class="h-3.5 w-3.5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.886L4.2 9.2l4.8 4.364L7.088 19.5 12 16l4.912 3.5-1.912-5.936 4.8-4.364-5.888-.314L12 3z"/></svg>
+                Simulation Core Active
+              </span>
+            </h2>
+            <p class="text-sm text-gray-400">Real-time depletion modeling, expiry safety logs, and autonomous restock pipelines.</p>
+          </div>
+        </div>
+
+        <!-- Metric Cards Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel rounded-2xl p-5 border border-gray-800 shadow-lg flex items-center gap-4">
+            <div class="h-10 w-10 rounded-xl bg-cyber-indigo/10 border border-cyber-indigo/25 flex items-center justify-center text-cyber-indigo">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+            <div>
+              <span class="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block">Total Items Stocked</span>
+              <span id="stat-total" class="text-2xl font-black text-white mt-0.5">4</span>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-5 border border-gray-800 shadow-lg flex items-center gap-4">
+            <div class="h-10 w-10 rounded-xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center text-orange-400">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <span class="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block">Restocks Required</span>
+              <span id="stat-low" class="text-2xl font-black text-white mt-0.5">1</span>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-5 border border-gray-800 shadow-lg flex items-center gap-4">
+            <div class="h-10 w-10 rounded-xl bg-red-500/10 border border-red-500/25 flex items-center justify-center text-cyber-rose">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+              <span class="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block">Expiry Risks Detected</span>
+              <span id="stat-expiry" class="text-2xl font-black text-white mt-0.5">1</span>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-5 border border-gray-800 shadow-lg flex items-center gap-4">
+            <div class="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-cyber-green">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </div>
+            <div>
+              <span class="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block">Shopping List Items</span>
+              <span id="stat-list" class="text-2xl font-black text-white mt-0.5">2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Donut Space Chart -->
+          <div class="glass-panel rounded-2xl border border-gray-800 p-5 shadow-xl flex flex-col justify-between">
+            <div>
+              <h4 class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2 mb-1">
+                <svg class="h-4 w-4 text-cyber-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l8.5 6"/></svg>
+                Category Space Allocation
+              </h4>
+              <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Active Pantry Tier Breakdown</p>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center justify-around gap-4 my-6">
+              <div class="relative h-28 w-28 flex items-center justify-center">
+                <svg viewBox="0 0 36 36" class="h-full w-full transform -rotate-90">
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="3" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#6366f1" stroke-width="3" stroke-dasharray="35 65" stroke-dashoffset="0" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="25 75" stroke-dashoffset="-35" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="20 80" stroke-dashoffset="-60" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="20 80" stroke-dashoffset="-80" />
+                </svg>
+                <div class="absolute flex flex-col items-center justify-center text-center">
+                  <span id="donut-center" class="text-xl font-black text-white">4</span>
+                  <span class="text-[8px] text-gray-500 uppercase tracking-widest font-black">Stocked</span>
+                </div>
+              </div>
+              <div class="space-y-2 flex-1 max-w-[180px]">
+                <div class="flex items-center justify-between text-xs font-semibold">
+                  <div class="flex items-center gap-1.5 text-gray-300">
+                    <span class="h-2 w-2 rounded-full bg-[#6366f1]"></span> Dairy Tier
+                  </div>
+                  <span>35%</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-semibold">
+                  <div class="flex items-center gap-1.5 text-gray-300">
+                    <span class="h-2 w-2 rounded-full bg-[#8b5cf6]"></span> Grains Tier
+                  </div>
+                  <span>25%</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-semibold">
+                  <div class="flex items-center gap-1.5 text-gray-300">
+                    <span class="h-2 w-2 rounded-full bg-[#10b981]"></span> Produce Tier
+                  </div>
+                  <span>20%</span>
+                </div>
+                <div class="flex items-center justify-between text-xs font-semibold">
+                  <div class="flex items-center gap-1.5 text-gray-300">
+                    <span class="h-2 w-2 rounded-full bg-[#f59e0b]"></span> Bakery Tier
+                  </div>
+                  <span>20%</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-[9px] text-gray-500 font-bold uppercase tracking-widest border-t border-gray-900/40 pt-2.5">
+              Distribution updates dynamically upon pantry usage
+            </div>
+          </div>
+
+          {/* Depletion curve chart */}
+          <div class="glass-panel rounded-2xl border border-gray-800 p-5 shadow-xl flex flex-col justify-between">
+            <div>
+              <h4 class="text-xs font-extrabold text-white uppercase tracking-wider flex items-center gap-2 mb-1">
+                <svg class="h-4 w-4 text-cyber-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                Depletion Velocity Analytics
+              </h4>
+              <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">7-Day Outflow & Spoilage Projections</p>
+            </div>
+            <div class="relative h-28 my-6 bg-gray-950/40 rounded-xl border border-gray-900 overflow-hidden">
+              <svg viewBox="0 0 450 100" preserveAspectRatio="none" class="h-full w-full">
+                <defs>
+                  <linearGradient id="waveGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(139, 92, 246, 0.4)" />
+                    <stop offset="100%" stop-color="rgba(139, 92, 246, 0)" />
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="25" x2="450" y2="25" stroke="rgba(255,255,255,0.02)" stroke-width="1" />
+                <line x1="0" y1="50" x2="450" y2="50" stroke="rgba(255,255,255,0.02)" stroke-width="1" />
+                <line x1="0" y1="75" x2="450" y2="75" stroke="rgba(255,255,255,0.02)" stroke-width="1" />
+                <path d="M 0 80 C 50 20, 100 90, 150 40 C 200 10, 250 85, 300 30 C 350 0, 400 60, 450 15 L 450 100 L 0 100 Z" fill="url(#waveGrad)" />
+                <path d="M 0 80 C 50 20, 100 90, 150 40 C 200 10, 250 85, 300 30 C 350 0, 400 60, 450 15" fill="none" stroke="#8b5cf6" stroke-width="2.5" />
+                <circle cx="150" cy="40" r="4.5" fill="#8b5cf6" stroke="#030712" stroke-width="1.5" />
+                <circle cx="300" cy="30" r="4.5" fill="#10b981" stroke="#030712" stroke-width="1.5" />
+              </svg>
+              <div class="absolute top-2 left-3 bg-gray-900/90 border border-gray-800 rounded px-1.5 py-0.5 text-[8px] font-bold text-cyber-violet flex items-center gap-1">
+                <svg class="h-2.5 w-2.5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.886L4.2 9.2l4.8 4.364L7.088 19.5 12 16l4.912 3.5-1.912-5.936 4.8-4.364-5.888-.314L12 3z"/></svg>
+                Outflow telemetry sync secure
+              </div>
+            </div>
+            <div class="flex justify-between items-center text-[9px] font-bold text-gray-500 uppercase tracking-widest border-t border-gray-900/40 pt-2.5">
+              <span>Peak Depletion: Monday</span>
+              <span>Overall Status: Normal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agent Terminal Logs & OCR Scanner Column -->
+        <div class="grid lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Agent terminal panel -->
+          <div class="lg:col-span-5">
+            <div class="glass-panel rounded-2xl border border-gray-800 p-5 shadow-xl flex flex-col h-[400px]">
+              <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                  <svg class="text-cyber-indigo h-5 w-5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                  <div>
+                    <h3 class="font-extrabold text-sm text-white tracking-wide uppercase flex items-center gap-1.5">
+                      AetherGro Agent Console
+                      <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping inline-block"></span>
+                    </h3>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Multi-Agent Autonomic Sync Loop</p>
+                  </div>
+                </div>
+              </div>
+              <!-- Scrolling list -->
+              <div id="agent-console-log" class="flex-1 bg-gray-950/80 rounded-xl p-4 border border-gray-900 font-mono text-[11px] leading-relaxed overflow-y-auto space-y-3 shadow-inner">
+                <!-- Dynamically appended -->
+              </div>
+              <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-900/40 text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                <div class="flex items-center gap-1"><svg class="h-3 w-3 text-cyber-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg> CPU: 1.5%</div>
+                <div class="flex items-center gap-1"><svg class="h-3 w-3 text-cyber-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Zero-Trust</div>
+                <div class="flex items-center gap-1"><svg class="h-3 w-3 text-cyber-indigo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg> Active</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OCR simulated panel -->
+          <div class="lg:col-span-7">
+            <div class="glass-panel rounded-2xl border border-gray-800 p-6 shadow-xl relative overflow-hidden h-[400px] flex flex-col justify-between">
+              
+              <!-- Laser scanning visual line -->
+              <div id="ocr-laser" class="absolute inset-0 z-10 pointer-events-none overflow-hidden bg-cyber-indigo/5 hidden">
+                <div class="w-full h-1 bg-gradient-to-r from-transparent via-cyber-indigo to-transparent opacity-80 shadow-[0_0_15px_#6366f1] animate-[bounce_2s_infinite]"></div>
+              </div>
+
+              <div>
+                <h3 class="text-xl font-bold tracking-tight text-white flex items-center gap-2 mb-1">
+                  <svg class="text-cyber-indigo h-5 w-5 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+                  Smart OCR Receipt Scanner
+                </h3>
+                <p class="text-xs text-gray-400 mb-4">Input grocery receipts to parse inventory items, prices and quantities instantly.</p>
+
+                <!-- Templates -->
+                <div class="mb-4">
+                  <span class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-2">Sealed Supermarket Bill Template</span>
+                  <button onclick="loadMockReceipt()" class="w-full text-left p-3 rounded-xl border border-gray-800 bg-gray-900/40 hover:bg-gray-800 hover:border-cyber-indigo/40 transition-all text-xs">
+                    <div class="font-bold text-white flex items-center gap-1.5 mb-0.5">
+                      <svg class="h-3.5 w-3.5 text-cyber-indigo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      D-Mart Superstore Receipt
+                    </div>
+                    <div class="text-[10px] text-gray-400 leading-snug">Organic Amul Milk 2L - Rs. 136.00 | Whole Wheat Bread...</div>
+                  </button>
+                </div>
+
+                <textarea id="receipt-text" rows="4" placeholder="Paste receipt details here..." class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-cyber-indigo font-mono placeholder:text-gray-700"></textarea>
+              </div>
+
+              <div class="flex gap-3 mt-4">
+                <button onclick="runOCRScan()" class="flex-1 py-3 bg-cyber-indigo hover:bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_12px_rgba(99,102,241,0.3)]">
+                  <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>
+                  Run AI OCR Scanner
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= 2. PANTRY VIEW (DIGITAL TWIN SHELVES) ================= -->
+      <div id="tab-pantry" class="tab-content space-y-8 hidden">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              <svg class="text-cyber-indigo h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              Pantry Category Shelf Twin
+            </h2>
+            <p class="text-sm text-gray-400">Interactive live 3D shelf visualizer representing storage locations.</p>
+          </div>
+          <div class="flex gap-4 text-xs font-medium bg-gray-900/50 p-2.5 rounded-lg border border-gray-800">
+            <div class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span> Safe</div>
+            <div class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-full bg-orange-400"></span> Low Stock</div>
+            <div class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b]"></span> Expiring</div>
+            <div class="flex items-center gap-1.5"><span class="h-3 w-3 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse"></span> Expired</div>
+          </div>
+        </div>
+
+        <!-- Category shelves -->
+        <div class="space-y-8" id="pantry-shelves">
+          <!-- Dynamically rendered shelves -->
+        </div>
+      </div>
+
+      <!-- ================= 3. GROCERY PLAN VIEW ================= -->
+      <div id="tab-list" class="tab-content space-y-8 hidden">
+        
+        <div class="flex justify-between items-center flex-wrap gap-4 border-b border-gray-850 pb-4">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              <svg class="text-cyber-green h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              Active Grocery Shopping Plan
+            </h2>
+            <p class="text-sm text-gray-400">Restock entries sorted by preferred supermarket aisle locations.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="triggerAutoRestock()" class="py-2.5 px-4 bg-cyber-violet hover:bg-violet-600 text-white text-xs font-black rounded-lg uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(139,92,246,0.3)] flex items-center gap-1.5">
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.886L4.2 9.2l4.8 4.364L7.088 19.5 12 16l4.912 3.5-1.912-5.936 4.8-4.364-5.888-.314L12 3z"/></svg>
+              AI Auto-Restock
+            </button>
+            <button onclick="clearCheckedItems()" class="py-2.5 px-4 bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-400 hover:text-white text-xs font-bold rounded-lg uppercase tracking-wider transition-colors">
+              Clear Checked
+            </button>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-8 items-start">
+          <!-- List display -->
+          <div class="md:col-span-8 glass-panel rounded-2xl border border-gray-800 p-6 shadow-xl">
+            <div id="shopping-list-entries" class="space-y-6">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Form -->
+          <div class="md:col-span-4 glass-panel rounded-2xl border border-gray-800 p-6 shadow-xl">
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 mb-4 border-b border-gray-850 pb-2.5">
+              <svg class="text-cyber-green h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Append Shopping Entry
+            </h4>
+            <form onsubmit="addShoppingItem(event)" class="space-y-4">
+              <div>
+                <label class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-1">Item Name</label>
+                <input id="list-add-name" type="text" required placeholder="e.g. Fresh Tomatoes" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-cyber-green font-semibold" />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-1">Quantity</label>
+                  <input id="list-add-qty" type="number" required min="1" value="1" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-cyber-green font-black" />
+                </div>
+                <div>
+                  <label class="text-[10px] text-gray-400 uppercase font-black tracking-widest block mb-1">Unit</label>
+                  <select id="list-add-unit" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-cyber-green font-semibold">
+                    <option value="pieces">pieces</option>
+                    <option value="kg">kg</option>
+                    <option value="packs">packs</option>
+                    <option value="L">L</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="w-full py-3 bg-cyber-green hover:bg-emerald-600 text-cyber-bg text-xs font-black rounded-xl uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                Add To Cart
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= 4. CULINARY PLANNER VIEW ================= -->
+      <div id="tab-recipes" class="tab-content space-y-8 hidden">
+        <div>
+          <h2 class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            <svg class="text-cyber-violet h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H18V20H6z"/><path d="M12 2v12"/><path d="M5 14h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2z"/></svg>
+            Culinary Ingredient Planner
+          </h2>
+          <p class="text-sm text-gray-400">Scale target recipe servings, automatically audit active stock levels, and cart missing differences.</p>
+        </div>
+
+        <!-- Recipes Grid -->
+        <div id="recipes-list-grid" class="grid md:grid-cols-2 gap-6">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Modal lot consumption drawer -->
+    <div id="lot-drawer" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/85 backdrop-blur-md hidden">
+      <div class="glass-panel w-full max-w-md rounded-2xl border border-gray-700/50 p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+          <div class="flex items-center gap-2">
+            <svg class="text-cyber-indigo h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <div>
+              <h3 id="drawer-item-name" class="font-extrabold text-sm text-white tracking-wide uppercase">Organic Amul Milk</h3>
+              <span id="drawer-item-cat" class="text-[9px] text-cyber-indigo font-bold uppercase tracking-wider font-semibold">Dairy Category</span>
+            </div>
+          </div>
+          <button onclick="closeDrawer()" class="text-gray-500 hover:text-white text-xs font-bold uppercase">Close</button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-800">
+            <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Current Stock</span>
+            <div id="drawer-item-stock" class="text-2xl font-black text-white mt-0.5">1.5 L</div>
+          </div>
+          <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-800">
+            <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Min Threshold</span>
+            <div id="drawer-item-min" class="text-2xl font-black text-white mt-0.5">2 L</div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <label class="text-[10px] text-gray-400 uppercase font-black tracking-wider block">Stock Consumption Slider</label>
+          <div class="p-3.5 bg-gray-950/65 rounded-xl border border-gray-800 flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-white">Active Purchase Batch</span>
+              <span id="drawer-lot-details" class="text-[9px] text-gray-500 block">INR 68 | Reliance Smart</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <input id="consume-qty-input" type="number" step="0.1" min="0.1" value="0.5" class="w-12 bg-gray-900 border border-gray-700 text-white rounded p-1 text-xs text-center font-bold" />
+              <button onclick="consumeItemStock()" class="px-2.5 py-1 bg-red-600/20 hover:bg-red-600/90 text-red-400 hover:text-white rounded border border-red-500/25 transition-all text-xs font-black">Consume</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Serving Scaler Drawer -->
+    <div id="recipe-scale-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/85 backdrop-blur-md hidden">
+      <div class="glass-panel w-full max-w-lg rounded-2xl border border-gray-700/50 flex flex-col max-h-[85vh]">
+        <div class="p-5 border-b border-gray-850 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <svg class="text-cyber-violet h-5.5 w-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H18V20H6z"/><path d="M12 2v12"/><path d="M5 14h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2z"/></svg>
+            <div>
+              <h3 id="modal-recipe-title" class="text-base font-extrabold text-white tracking-tight leading-none">Creamy Paneer Wrap</h3>
+              <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Serving Scaler Engine</p>
+            </div>
+          </div>
+          <button onclick="closeRecipeModal()" class="text-gray-500 hover:text-white text-xs font-bold uppercase">Close</button>
+        </div>
+
+        <!-- Servings count -->
+        <div class="p-5 bg-gray-900/20 border-b border-gray-850 flex items-center justify-between">
+          <span class="text-xs font-bold text-gray-300">Target Serving Size:</span>
+          <div class="flex items-center gap-3">
+            <button onclick="adjustRecipeServings(-1)" class="h-8 w-8 bg-gray-950 border border-gray-800 hover:bg-gray-800 text-white rounded-lg flex items-center justify-center font-bold text-lg select-none">-</button>
+            <span id="modal-recipe-servings" class="text-base font-extrabold text-white w-6 text-center">2</span>
+            <button onclick="adjustRecipeServings(1)" class="h-8 w-8 bg-gray-950 border border-gray-800 hover:bg-gray-800 text-white rounded-lg flex items-center justify-center font-bold text-lg select-none">+</button>
+          </div>
+        </div>
+
+        <!-- Ingredients compared list -->
+        <div id="modal-recipe-ingredients" class="flex-1 overflow-y-auto p-5 space-y-3.5">
+          <!-- Dynamically rendered -->
+        </div>
+
+        <div class="p-5 border-t border-gray-850 bg-gray-950/60 flex items-center justify-between">
+          <span id="modal-recipe-shortage-label" class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Shortages Detected</span>
+          <button onclick="cartRecipeShortages()" class="py-3 px-5 rounded-xl bg-cyber-violet hover:bg-violet-600 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(139,92,246,0.3)]">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            Ingest Missing Elements
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master Footer -->
+    <footer class="py-6 border-t border-gray-900/60 bg-gray-950/20 text-center text-gray-600 text-[10px] font-bold uppercase tracking-widest max-w-7xl w-full mx-auto px-6">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+        <p class="flex items-center gap-1 justify-center">
+          Designed for proof of work with <svg class="h-3.5 w-3.5 text-red-500 fill-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> by AetherGro Innovation Lab
+        </p>
+        <p>Full-Stack MERN Portfolio Sandbox © 2026</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Central reactive JavaScript engine -->
+  <script>
+    // State Database
+    let pantry = [
+      { id: 'p1', name: 'Organic Amul Milk', category: 'Dairy', stock: 1.5, min: 2.0, unit: 'L', status: 'lowstock', expiry: 2, aisle: 'Aisle A: Cold Dairy', price: 68, store: 'Reliance Smart' },
+      { id: 'p2', name: 'Whole Wheat Bread', category: 'Bakery', stock: 0.1, min: 1.0, unit: 'packs', status: 'expired', expiry: -1, aisle: 'Aisle C: Fresh Bakery', price: 45, store: 'D-Mart' },
+      { id: 'p3', name: 'Brown Eggs (Dozen)', category: 'Dairy', stock: 1.0, min: 1.0, unit: 'packs', status: 'safe', expiry: 12, aisle: 'Aisle A: Cold Dairy', price: 110, store: 'Reliance Smart' },
+      { id: 'p4', name: 'Premium Basmati Rice', category: 'Grains', stock: 5.0, min: 2.0, unit: 'kg', status: 'safe', expiry: 180, aisle: 'Aisle F: Grains & Spices', price: 120, store: 'D-Mart' }
+    ];
+
+    let shoppingList = [
+      { id: 's1', name: 'Organic Amul Milk', category: 'Dairy', qty: 1.0, unit: 'L', checked: false, source: 'lowstock', aisle: 'Aisle A: Cold Dairy' },
+      { id: 's2', name: 'Whole Wheat Bread', category: 'Bakery', qty: 1.0, unit: 'packs', checked: false, source: 'expiry', aisle: 'Aisle C: Fresh Bakery' }
+    ];
+
+    const recipes = [
+      {
+        id: 'r1',
+        title: "Creamy Paneer & Tomato Wrap",
+        description: "A fast, high-protein cottage cheese wrap with ripe vine tomatoes.",
+        servings: 2,
+        ingredients: [
+          { name: "Paneer (Cottage Cheese)", qty: 200, unit: "g", linkId: null },
+          { name: "Vine Tomatoes", qty: 2, unit: "pieces", linkId: null },
+          { name: "Organic Amul Milk", qty: 0.1, unit: "L", linkId: 'p1' }
+        ],
+        steps: [
+          "Dice paneer into small cubes and pan sear.",
+          "Chop fresh vine tomatoes and sauté in butter.",
+          "Add paneer, milk and warm wrap tightly."
+        ]
+      },
+      {
+        id: 'r2',
+        title: "Healthy Avocado Toast",
+        description: "Classic power breakfast with organic whole wheat bread and fresh avocados.",
+        servings: 1,
+        ingredients: [
+          { name: "Fresh Hass Avocados", qty: 1, unit: "pieces", linkId: null },
+          { name: "Whole Wheat Bread", qty: 2, unit: "pieces", linkId: 'p2' },
+          { name: "Brown Eggs (Dozen)", qty: 2, unit: "pieces", linkId: 'p3' }
+        ],
+        steps: [
+          "Toast whole wheat bread slices until crisp.",
+          "Mash avocado with lime and salt, spread over bread toast.",
+          "Top with soft poached eggs and red pepper flakes."
+        ]
+      }
+    ];
+
+    let logs = [
+      { agent: "Prediction Agent", msg: "Usage velocity audit: Milk consumes at 0.25L/day. Projected depletion: 6.0 days.", status: "info", time: new Date().toLocaleTimeString() },
+      { agent: "Risk Detection Agent", msg: "Spoilage Warning: Whole Wheat Bread lot expired 24 hours ago. Replacement queued.", status: "warning", time: new Date().toLocaleTimeString() },
+      { agent: "Optimization Agent", msg: "Store price comparison: Organic Milk is 12% cheaper at D-Mart than local stores.", status: "success", time: new Date().toLocaleTimeString() },
+      { agent: "Orchestrator Agent", msg: "Auto-restocked replacement Whole Wheat Bread directly to primary list.", status: "success", time: new Date().toLocaleTimeString() }
+    ];
+
+    let currentItem = null;
+    let currentRecipe = null;
+    let targetServings = 2;
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+      
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-cyber-indigo', 'text-white', 'shadow-[0_0_10px_rgba(99,102,241,0.25)]', 'border-t', 'border-white/5');
+        btn.classList.add('text-gray-400');
+      });
+      
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.classList.remove('text-gray-400');
+      activeBtn.classList.add('bg-cyber-indigo', 'text-white', 'shadow-[0_0_10px_rgba(99,102,241,0.25)]', 'border-t', 'border-white/5');
+    }
+
+    // Load elements
+    window.onload = function() {
+      renderStats();
+      renderConsole();
+      renderPantryShelves();
+      renderShoppingList();
+      renderRecipes();
+      
+      // Auto logging simulation loop
+      setInterval(() => {
+        const agents = ["Prediction Agent", "Risk Detection Agent", "Optimization Agent", "Orchestrator Agent"];
+        const msgs = [
+          "Cross-referencing price indices... Seasonal inflation on produce has stabilized.",
+          "Consumption velocity recalculating. Bread velocity increased by 10%.",
+          "Digital Twin synchronization secure. 4 layers verified.",
+          "Pantry shelf storage capacity is currently holding within safe bounds."
+        ];
+        const stat = ["info", "success", "info"];
+        const index = Math.floor(Math.random() * msgs.length);
+        
+        logs.unshift({
+          agent: agents[index],
+          msg: msgs[index],
+          status: stat[Math.floor(Math.random() * stat.length)],
+          time: new Date().toLocaleTimeString()
+        });
+        logs = logs.slice(0, 15);
+        renderConsole();
+      }, 7000);
+    };
+
+    function renderStats() {
+      document.getElementById('stat-total').innerText = pantry.length;
+      document.getElementById('stat-low').innerText = pantry.filter(i => i.status === 'lowstock').length;
+      document.getElementById('stat-expiry').innerText = pantry.filter(i => i.status === 'expired' || i.status === 'critical').length;
+      document.getElementById('stat-list').innerText = shoppingList.filter(e => !e.checked).length;
+      document.getElementById('donut-center').innerText = pantry.length;
+    }
+
+    function renderConsole() {
+      const container = document.getElementById('agent-console-log');
+      container.innerHTML = '';
+      
+      logs.forEach(log => {
+        let badgeColor = "bg-cyber-indigo/10 text-cyber-indigo border-cyber-indigo/30";
+        if (log.agent === "Risk Detection Agent") badgeColor = "bg-red-500/10 text-red-400 border-red-500/30";
+        if (log.agent === "Optimization Agent") badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+        if (log.agent === "Prediction Agent") badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/30";
+
+        let textColor = "text-cyber-indigo";
+        if (log.status === "warning") textColor = "text-amber-400";
+        if (log.status === "success") textColor = "text-emerald-400";
+
+        container.innerHTML += `
+          <div class="flex gap-2 items-start border-b border-gray-900/40 pb-2.5">
+            <span class="text-gray-500 font-semibold flex-shrink-0">[${log.time}]</span>
+            <div class="flex-1 space-y-1">
+              <span class="inline-block text-[9px] px-1.5 py-0.5 rounded border font-semibold tracking-wider uppercase select-none ${badgeColor}">
+                ${log.agent}
+              </span>
+              <p class="mt-0.5 tracking-tight font-medium ${textColor}">
+                ${log.msg}
+              </p>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML += '<div class="console-cursor"></div>';
+    }
+
+    function renderPantryShelves() {
+      const categories = ['Dairy', 'Produce', 'Bakery', 'Grains'];
+      const container = document.getElementById('pantry-shelves');
+      container.innerHTML = '';
+
+      categories.forEach(cat => {
+        const shelfItems = pantry.filter(i => i.category === cat);
+        let shelfHtml = `
+          <div class="relative bg-gray-900/40 rounded-xl p-4 border border-gray-800/80 shadow-inner grid-gridlines">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded-t-xl opacity-90 shadow-md"></div>
+            <div class="flex items-center justify-between mb-4 mt-1">
+              <span class="text-sm font-semibold tracking-wider text-cyber-indigo uppercase bg-cyber-indigo/10 px-2.5 py-1 rounded border border-cyber-indigo/25">
+                ${cat} Tier
+              </span>
+              <span class="text-xs text-gray-500 font-medium">${shelfItems.length} items loaded</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        `;
+
+        if (shelfItems.length === 0) {
+          shelfHtml += `<div class="col-span-4 text-center py-6 text-xs text-gray-500 italic">Shelf Tier Empty.</div>`;
+        } else {
+          shelfItems.forEach(item => {
+            let badge = 'glow-green text-emerald-400';
+            if (item.status === 'lowstock') badge = 'text-orange-400 border-orange-500/30';
+            if (item.status === 'expired') badge = 'glow-rose text-red-400 animate-pulse';
+
+            shelfHtml += `
+              <button onclick="openItemDrawer('${item.id}')" class="text-left p-3.5 rounded-xl border glass-panel transition-all duration-300 hover:scale-[1.03] group relative overflow-hidden flex flex-col justify-between h-36 ${badge}">
+                <div>
+                  <div class="text-[9px] opacity-75 font-semibold uppercase tracking-wider mb-1">${item.aisle.split(':')[0]}</div>
+                  <div class="font-bold text-sm tracking-tight text-white leading-tight">${item.name}</div>
+                </div>
+                <div class="mt-3">
+                  <div class="text-xl font-extrabold flex items-baseline gap-1 text-white">
+                    ${item.stock} <span class="text-[10px] font-normal opacity-85">${item.unit}</span>
+                  </div>
+                  <div class="flex items-center justify-between mt-1 text-[10px] font-bold">
+                    ${item.expiry < 0 ? '<span class="text-red-400">EXPIRED</span>' : `<span class="text-emerald-400">${item.expiry}d left</span>`}
+                  </div>
+                </div>
+              </button>
+            `;
+          });
+        }
+
+        shelfHtml += `
+            </div>
+            <div class="mt-4 h-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded border-t border-gray-700/50 shadow-md"></div>
+          </div>
+        `;
+        container.innerHTML += shelfHtml;
+      });
+    }
+
+    function renderShoppingList() {
+      const container = document.getElementById('shopping-list-entries');
+      container.innerHTML = '';
+
+      if (shoppingList.length === 0) {
+        container.innerHTML = `<div class="text-center py-10 text-xs text-gray-500 italic">Plan clear. Audit inventory levels.</div>`;
+        return;
+      }
+
+      // Group by aisle
+      const aisles = [...new Set(shoppingList.map(e => e.aisle))];
+      aisles.forEach(aisle => {
+        const aisleEntries = shoppingList.filter(e => e.aisle === aisle);
+        let aisleHtml = `
+          <div class="space-y-3">
+            <div class="text-[10px] font-extrabold tracking-wider text-cyber-green uppercase bg-cyber-green/10 border border-cyber-green/20 px-2.5 py-1 rounded inline-block">
+              ${aisle}
+            </div>
+            <div class="space-y-2">
+        `;
+
+        aisleEntries.forEach(entry => {
+          let badgeColor = "bg-gray-800 text-gray-400 border-gray-700/50";
+          if (entry.source === 'lowstock') badgeColor = "bg-orange-500/10 text-orange-400 border-orange-500/20";
+          if (entry.source === 'expiry') badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+          if (entry.source === 'recipe') badgeColor = "bg-cyber-violet/10 text-cyber-violet border-cyber-violet/20";
+
+          const checkboxIcon = entry.checked 
+            ? `<svg class="h-5 w-5 text-cyber-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><polyline points="9 11 12 14 22 4"/></svg>`
+            : `<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>`;
+
+          aisleHtml += `
+            <div class="p-3.5 rounded-xl border border-gray-850 glass-panel flex items-center justify-between ${entry.checked ? 'opacity-40 border-gray-900 bg-gray-950/20' : ''}">
+              <div class="flex items-center gap-3">
+                <button onclick="toggleShoppingChecked('${entry.id}')" class="text-gray-400 hover:text-cyber-green">
+                  ${checkboxIcon}
+                </button>
+                <div>
+                  <span class="text-xs font-bold text-white ${entry.checked ? 'line-through text-gray-600' : ''}">${entry.name}</span>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[9px] text-gray-500 font-semibold">{qty} {unit}</span>
+                    <span class="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${badgeColor}">${entry.source}</span>
+                  </div>
+                </div>
+              </div>
+              <button onclick="deleteShoppingItem('${entry.id}')" class="text-gray-500 hover:text-red-400">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
+            </div>
+          `.replace('{qty}', entry.qty).replace('{unit}', entry.unit);
+        });
+
+        aisleHtml += `</div></div>`;
+        container.innerHTML += aisleHtml;
+      });
+    }
+
+    function renderRecipes() {
+      const container = document.getElementById('recipes-list-grid');
+      container.innerHTML = '';
+
+      recipes.forEach(recipe => {
+        container.innerHTML += `
+          <div class="glass-panel rounded-2xl border border-gray-800 p-6 flex flex-col justify-between hover:border-cyber-violet/30 transition-all duration-300 group shadow-lg">
+            <div>
+              <div class="flex items-center justify-between border-b border-gray-900/60 pb-3 mb-4">
+                <h3 class="font-extrabold text-lg text-white group-hover:text-cyber-violet transition-colors">${recipe.title}</h3>
+                <span class="text-[10px] text-cyber-violet font-extrabold uppercase bg-cyber-violet/10 border border-cyber-violet/25 px-2 py-0.5 rounded">${recipe.servings} Servings</span>
+              </div>
+              <p class="text-xs text-gray-400 mb-4 leading-relaxed">${recipe.description}</p>
+              <div class="mb-5">
+                <span class="text-[10px] text-gray-500 uppercase font-black tracking-widest block mb-2 font-black">Recipe Elements</span>
+                <div class="flex flex-wrap gap-2">
+                  ${recipe.ingredients.map(ing => `<span class="text-[10px] font-bold text-gray-300 bg-gray-900/60 border border-gray-850 px-2 py-1 rounded-lg">${ing.qty} ${ing.unit} ${ing.name}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+            <button onclick="openRecipeModal('${recipe.id}')" class="w-full py-3 bg-cyber-violet hover:bg-cyber-violet text-white text-xs font-black rounded-xl uppercase tracking-wider transition-all flex items-center justify-center gap-2">
+              <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              Scale & Analyze Gaps
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    // Modal Item management drawer
+    function openItemDrawer(itemId) {
+      currentItem = pantry.find(i => i.id === itemId);
+      document.getElementById('drawer-item-name').innerText = currentItem.name;
+      document.getElementById('drawer-item-cat').innerText = currentItem.category + ' Category';
+      document.getElementById('drawer-item-stock').innerText = currentItem.stock + ' ' + currentItem.unit;
+      document.getElementById('drawer-item-min').innerText = currentItem.min + ' ' + currentItem.unit;
+      document.getElementById('drawer-lot-details').innerText = `INR ${currentItem.price} | Bought from ${currentItem.store}`;
+      document.getElementById('consume-qty-input').value = '0.5';
+      document.getElementById('consume-qty-input').setAttribute('max', currentItem.stock);
+      
+      document.getElementById('lot-drawer').classList.remove('hidden');
+    }
+
+    function closeDrawer() {
+      document.getElementById('lot-drawer').classList.add('hidden');
+    }
+
+    function consumeItemStock() {
+      const qty = parseFloat(document.getElementById('consume-qty-input').value) || 0.1;
+      if (qty <= 0) return;
+
+      currentItem.stock = Math.max(0, Number((currentItem.stock - qty).toFixed(2)));
+      
+      // Update status
+      if (currentItem.stock === 0) {
+        currentItem.status = 'expired';
+        currentItem.expiry = -1;
+      } else if (currentItem.stock <= currentItem.min) {
+        currentItem.status = 'lowstock';
+      } else {
+        currentItem.status = 'safe';
+      }
+
+      // Record logs
+      logs.unshift({
+        agent: "Prediction Agent",
+        msg: `Stock-Out: Consumed ${qty} ${currentItem.unit} of ${currentItem.name}. Stock now: ${currentItem.stock} ${currentItem.unit}.`,
+        status: currentItem.stock <= currentItem.min ? "warning" : "info",
+        time: new Date().toLocaleTimeString()
+      });
+
+      renderStats();
+      renderConsole();
+      renderPantryShelves();
+      closeDrawer();
+    }
+
+    // Recipe difference modal
+    function openRecipeModal(recipeId) {
+      currentRecipe = recipes.find(r => r.id === recipeId);
+      targetServings = currentRecipe.servings;
+      
+      document.getElementById('modal-recipe-title').innerText = currentRecipe.title;
+      document.getElementById('modal-recipe-servings').innerText = targetServings;
+      
+      calculateRecipeGaps();
+      document.getElementById('recipe-scale-modal').classList.remove('hidden');
+    }
+
+    function closeRecipeModal() {
+      document.getElementById('recipe-scale-modal').classList.add('hidden');
+    }
+
+    function adjustRecipeServings(val) {
+      targetServings = Math.max(1, targetServings + val);
+      document.getElementById('modal-recipe-servings').innerText = targetServings;
+      calculateRecipeGaps();
+    }
+
+    function calculateRecipeGaps() {
+      const container = document.getElementById('modal-recipe-ingredients');
+      container.innerHTML = '';
+
+      const scale = targetServings / currentRecipe.servings;
+      let shortCount = 0;
+
+      currentRecipe.ingredients.forEach(ing => {
+        const scaledQty = Number((ing.qty * scale).toFixed(1));
+        const pantryMatch = pantry.find(p => p.id === ing.linkId || p.name.toLowerCase() === ing.name.toLowerCase());
+        const stock = pantryMatch ? pantryMatch.stock : 0;
+        const short = Math.max(0, Number((scaledQty - stock).toFixed(1)));
+
+        let badgeHtml = `<span class="flex items-center gap-1 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Sufficient</span>`;
+        if (short > 0) {
+          shortCount++;
+          badgeHtml = `<span class="flex items-center gap-1 text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded text-[10px] font-bold"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Buy: ${short} ${ing.unit}</span>`;
+        }
+
+        container.innerHTML += `
+          <div class="p-3 bg-gray-950/60 rounded-xl border border-gray-850 flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-white">${ing.name}</span>
+              <span class="text-[9px] text-gray-500 block mt-0.5">Needed: ${scaledQty} ${ing.unit} | Stock: ${stock} ${ing.unit}</span>
+            </div>
+            <div>${badgeHtml}</div>
+          </div>
+        `;
+      });
+
+      document.getElementById('modal-recipe-shortage-label').innerText = `Shortage Analysis: ${shortCount} elements deficient`;
+    }
+
+    function cartRecipeShortages() {
+      const scale = targetServings / currentRecipe.servings;
+      let added = 0;
+
+      currentRecipe.ingredients.forEach(ing => {
+        const scaledQty = Number((ing.qty * scale).toFixed(1));
+        const pantryMatch = pantry.find(p => p.id === ing.linkId || p.name.toLowerCase() === ing.name.toLowerCase());
+        const stock = pantryMatch ? pantryMatch.stock : 0;
+        const short = Math.max(0, Number((scaledQty - stock).toFixed(1)));
+
+        if (short > 0) {
+          shoppingList.push({
+            id: 's_' + Math.random().toString(36).substr(2, 5),
+            name: ing.name,
+            category: pantryMatch ? pantryMatch.category : 'Pantry',
+            qty: short,
+            unit: ing.unit,
+            checked: false,
+            source: 'recipe',
+            aisle: pantryMatch ? pantryMatch.aisle : 'Aisle G: General Pantry'
+          });
+          added++;
+        }
+      });
+
+      logs.unshift({
+        agent: "Orchestrator Agent",
+        msg: `Cart Ingest: Queued ${added} scaled ingredient deficiencies for '${currentRecipe.title}' (Servings: ${targetServings}).`,
+        status: "success",
+        time: new Date().toLocaleTimeString()
+      });
+
+      renderStats();
+      renderConsole();
+      renderShoppingList();
+      closeRecipeModal();
+      alert(`Success! Seeded ${added} missing recipe ingredients to shopping list.`);
+    }
+
+    // Manual Shopping Append
+    function addShoppingItem(e) {
+      e.preventDefault();
+      const name = document.getElementById('list-add-name').value;
+      const qty = parseFloat(document.getElementById('list-add-qty').value) || 1;
+      const unit = document.getElementById('list-add-unit').value;
+
+      shoppingList.push({
+        id: 's_' + Math.random().toString(36).substr(2, 5),
+        name,
+        category: 'Pantry',
+        qty,
+        unit,
+        checked: false,
+        source: 'manual',
+        aisle: 'Aisle G: General Pantry'
+      });
+
+      document.getElementById('list-add-name').value = '';
+      document.getElementById('list-add-qty').value = 1;
+
+      renderStats();
+      renderShoppingList();
+    }
+
+    function toggleShoppingChecked(id) {
+      const entry = shoppingList.find(e => e.id === id);
+      if (entry) {
+        entry.checked = !entry.checked;
+        renderShoppingList();
+      }
+    }
+
+    function deleteShoppingItem(id) {
+      shoppingList = shoppingList.filter(e => e.id !== id);
+      renderStats();
+      renderShoppingList();
+    }
+
+    function clearCheckedItems() {
+      shoppingList = shoppingList.filter(e => !e.checked);
+      renderStats();
+      renderShoppingList();
+    }
+
+    function triggerAutoRestock() {
+      let added = 0;
+      pantry.forEach(item => {
+        if (item.status !== 'safe') {
+          // Check if already on list
+          const exists = shoppingList.some(e => e.name.toLowerCase() === item.name.toLowerCase() && !e.checked);
+          if (!exists) {
+            shoppingList.push({
+              id: 's_' + Math.random().toString(36).substr(2, 5),
+              name: item.name,
+              category: item.category,
+              qty: Math.max(1, item.min),
+              unit: item.unit,
+              checked: false,
+              source: item.status,
+              aisle: item.aisle
+            });
+            added++;
+          }
+        }
+      });
+
+      logs.unshift({
+        agent: "Orchestrator Agent",
+        msg: `Auto-restock audit completed. Queued ${added} low/expired items onto the primary grocery list.`,
+        status: "success",
+        time: new Date().toLocaleTimeString()
+      });
+
+      renderStats();
+      renderConsole();
+      renderShoppingList();
+      alert(`Auto-restock complete. Seeded ${added} deficient shelf items onto grocery plan.`);
+    }
+
+    // Simulated OCR Scanner
+    function loadMockReceipt() {
+      document.getElementById('receipt-text').value = 
+        "D-MART SUPERSTORE\n====================\nOrganic Amul Milk 2L Rs 136.00\nWhole Wheat Bread 1 packs Rs 45.00\n====================\nTotal Items: 2";
+    }
+
+    function runOCRScan() {
+      const text = document.getElementById('receipt-text').value;
+      if (!text.trim()) return;
+
+      document.getElementById('ocr-laser').classList.remove('hidden');
+      
+      setTimeout(() => {
+        document.getElementById('ocr-laser').classList.add('hidden');
+        document.getElementById('receipt-text').value = '';
+
+        // Add amul milk 2L and whole wheat bread
+        pantry.forEach(item => {
+          if (item.id === 'p1') {
+            item.stock += 2;
+            item.status = 'safe';
+          }
+          if (item.id === 'p2') {
+            item.stock += 1;
+            item.status = 'safe';
+            item.expiry = 3; // Refreshed expiry
+          }
+        });
+
+        logs.unshift({
+          agent: "Optimization Agent",
+          msg: "Simulated OCR Scan Complete: Seeded 2L Milk & 1 pack Bread batches into active shelves.",
+          status: "success",
+          time: new Date().toLocaleTimeString()
+        });
+
+        renderStats();
+        renderConsole();
+        renderPantryShelves();
+        alert("OCR Parse Successful! 2 batches scanned and pushed directly onto Category Tiers.");
+      }, 2500);
+    }
+  </script>
+</body>
+</html>

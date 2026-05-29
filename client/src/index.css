@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Ultra-Premium Glassmorphism Panels */
+  .glass-panel {
+    background: rgba(10, 15, 30, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .glass-panel-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-panel-hover:hover {
+    background: rgba(15, 23, 42, 0.85);
+    border-color: rgba(99, 102, 241, 0.25);
+    box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Interactive Neon Glows */
+  .glow-green {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+    border-color: rgba(16, 185, 129, 0.4);
+  }
+
+  .glow-amber {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+
+  .glow-rose {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  .glow-indigo {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.35);
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+
+  /* Cyber Grid Visual Markers */
+  .grid-gridlines {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  }
+}
+
+/* Premium Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(3, 7, 18, 0.9);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.4);
+}
+
+/* Custom virtual console typing cursor */
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.console-cursor::after {
+  content: '▋';
+  animation: blink 1s step-start infinite;
+  color: #6366f1;
+  margin-left: 2px;
+}
