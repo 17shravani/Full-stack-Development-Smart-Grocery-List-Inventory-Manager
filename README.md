@@ -1,6 +1,8 @@
 # AetherGro 🪐
 ### AI-Powered Smart Grocery List & Autonomous Pantry Shelf Ecosystem
 
+<img width="1024" height="1024" alt="P4- output" src="https://github.com/user-attachments/assets/018f7b40-0ebb-4cf4-b589-c32cc6b16f3d" />
+
 AetherGro is a production-grade, highly innovative full-stack digital ecosystem designed to eradicate household food waste, prevent product stockouts, and streamline supermarket planning. Developed as an enterprise-class MERN stack portfolio piece, AetherGro incorporates an **Interactive 3D-ish Digital Twin Shelf Visualizer**, a **Multi-Agent AI Simulation Terminal**, a **Smart OCR Receipt Text Ingestion Tool**, and a serving-scalable **Net-Need Recipe Aggregator**.
 
 ---
